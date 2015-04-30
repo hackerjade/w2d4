@@ -1,5 +1,6 @@
 require_relative 'piece'
 require 'colorize'
+require 'byebug'
 
 class Board
   def initialize(game_beginning = true)
@@ -13,6 +14,20 @@ class Board
 
   def []=(row, col, value)
     @board[row][col] = value
+  end
+
+  def move(start_pos, end_pos)
+    begin
+      # byebug
+      row, col = start_pos
+      @board[row][col].perform_slide(end_pos)
+    rescue RuntimeError => e
+      puts "Plese choose a valid move."
+    end
+  end
+
+  def empty?(row, col)
+    @board[row][col].nil?
   end
 
   def display
@@ -53,11 +68,11 @@ class Board
     (0..7).each do |col|
       if color == :black
         if row.odd? && col.even? || row.even? && col.odd?
-          @board[row][col] = Piece.new(color, [row, col], @board)
+          @board[row][col] = Piece.new(color, [row, col], self)
         end
       elsif color == :red
         if row.odd? && col.odd? || row.even? && col.even?
-          @board[row][col] = Piece.new(color, [row, col], @board)
+          @board[row][col] = Piece.new(color, [row, col], self)
         end
       end
     end
@@ -66,5 +81,8 @@ end
 
 if __FILE__ == $PROGRAM_NAME
   board = Board.new
-  puts board.display
+  board.move([5,5], [4,4])
+  # p board[0,0]
+  # p board[0,1] = nil
+  # puts board.display
 end

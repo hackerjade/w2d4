@@ -16,9 +16,12 @@ class Piece
 
   def perform_slide(position)
     delta = [position[0] - @pos[0], position[1] - @pos[1]]
-    return false if !move_diffs.include?(delta)
+    raise RuntimeError.new "Invalid move!" if !move_diffs.include?(delta)
+    @board[@pos[0], @pos[1]] = nil
     @pos = position
+    @board[position[0], position[1]] = self
     maybe_promote
+    puts @board.display
     return true
   end
 
@@ -27,6 +30,21 @@ class Piece
   end
 
   def perform_jump(position)
+    p delta = [(position[0] - @pos[0]) / 2, (position[1] - @pos[1]) / 2]
+    capture = @pos[0] + delta[0], @pos[1] + delta[1]
+    p capture
+    # return false if !move_diffs.include?(delta) || @board.empty?(capture)
+    # @pos = position
+    #
+    # @board[capture] = nil
+    # maybe_promote
+    # return true
+
+    #start = [2, 0] (y, x)
+    #end = [0, 2] || [0, -2]
+    #step = [1, 1] delta = [-1, 1]
+    #end - step = delta?
+    #super_delta = [-2, 2]
     #remove the other piece we jumped over FROM BOARD
     #if slide position is occupied by opposite color
     #slide twice and remove other color
@@ -61,7 +79,6 @@ class Piece
     {:color => @color}.inspect
   end
 end
-
 
 if __FILE__ == $PROGRAM_NAME
   red = Piece.new(:red, [7,7], board)
