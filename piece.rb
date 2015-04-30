@@ -19,37 +19,25 @@ class Piece
     raise RuntimeError.new "Invalid move!" if !move_diffs.include?(delta)
     @board[@pos], @pos, @board[position] = nil, position, self
     maybe_promote
-    puts @board.display
-    return true
-  end
 
-  def maybe_promote
-    @promoted = true if @pos[0] == @promotion_row
+    return true
   end
 
   def perform_jump(position)
     delta = [(position[0] - @pos[0]) / 2, (position[1] - @pos[1]) / 2]
     capture = @pos[0] + delta[0], @pos[1] + delta[1]
-    capture
+
     if !move_diffs.include?(delta) || @board.empty?(capture)
       raise RuntimeError.new "Invalid move!"
     elsif @board.own_piece?(capture, @color)
       raise RuntimeError.new "Can't capture your own piece!"
     end
+
     @board[@pos], @pos, @board[position] = nil, position, self
     @board[capture] = nil
     maybe_promote
-    puts @board.display
-    return true
 
-    #start = [2, 0] (y, x)
-    #end = [0, 2] || [0, -2]
-    #step = [1, 1] delta = [-1, 1]
-    #end - step = delta?
-    #super_delta = [-2, 2]
-    #remove the other piece we jumped over FROM BOARD
-    #if slide position is occupied by opposite color
-    #slide twice and remove other color
+    return true
   end
 
   def display
@@ -80,6 +68,11 @@ class Piece
 
   def inspect
     {:color => @color}.inspect
+  end
+
+  private
+  def maybe_promote
+    @promoted = true if @pos[0] == @promotion_row
   end
 end
 

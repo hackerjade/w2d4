@@ -30,7 +30,8 @@ class Board
       begin
         @board[row][col].perform_jump(end_pos)
       rescue RuntimeError => e
-        puts "Can't capture your own piece!"
+        # puts "Can't capture your own piece!"
+        raise e
       end
     end
   end

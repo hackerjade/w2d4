@@ -16,27 +16,41 @@ class Game
 
   def play
     puts @board.display
-    begin
-      start_pos, end_pos = parse_input(@player1)
-    rescue RuntimeError => e
-      puts "Invalid key!"
-      retry
-    end
-      @board.move(start_pos, end_pos)
+    start_pos = [0, 0]
+    until won?(start_pos)
+      begin
+        start_pos, end_pos = parse_input(@player1)
+        @board.move(start_pos, end_pos)
+      rescue KeyError => e
+        puts e.message
+        retry
+      rescue RuntimeError => e
+        puts e.message
+        retry
+      end
       system "clear"
       puts @board.display
+    end
+  end
+
+  def won?(pos)
+    pos == [3, 7]
+  end
+
+  def switch_players
+
   end
 
   def parse_input(player)
     start_pos, end_pos = nil, nil
     until start_pos && end_pos
       input = player.get_input
-      raise RuntimeError.new "Invalid!" if !valid_key?(input)
+      raise RuntimeError.new "Invalid key!" if !valid_key?(input)
       if input == :pick_up
         start_pos = @board.cursor
       elsif input == :drop_off && start_pos
         end_pos = @board.cursor
-      else
+      elsif input != :drop_off
         @board.move_cursor(input)
         system "clear"
         puts @board.display
