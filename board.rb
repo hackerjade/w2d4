@@ -8,11 +8,13 @@ class Board
     set_up_board if game_beginning
   end
 
-  def [](row, col)
+  def [](pos)
+    row, col = pos
     @board[row][col]
   end
 
-  def []=(row, col, value)
+  def []=(pos, value)
+    row, col = pos
     @board[row][col] = value
   end
 
@@ -22,11 +24,12 @@ class Board
       row, col = start_pos
       @board[row][col].perform_slide(end_pos)
     rescue RuntimeError => e
-      puts "Plese choose a valid move."
+      @board[row][col].perform_jump(end_pos)
     end
   end
 
-  def empty?(row, col)
+  def empty?(pos)
+    row, col= pos
     @board[row][col].nil?
   end
 
@@ -81,7 +84,7 @@ end
 
 if __FILE__ == $PROGRAM_NAME
   board = Board.new
-  board.move([5,5], [4,4])
+  board.move([6,6], [4,4])
   # p board[0,0]
   # p board[0,1] = nil
   # puts board.display
