@@ -1,5 +1,5 @@
 class Piece
-  attr_reader :color, :promotion_row
+  attr_reader :color
   attr_accessor :pos, :promoted
 
   def initialize(color, pos, board, promoted = false)
@@ -7,20 +7,15 @@ class Piece
     @pos = pos
     @board = board
     @promoted = promoted
-    @promotion_row = find_promotion_row
   end
 
-  def find_promotion_row
-    @pos[0] == 7 ? 0 : 7
+  def display
+    @promoted ? symbol = " \u265A " : symbol = " \u2688 "
+    symbol.colorize(@color)
   end
 
-  def perform_slide(position)
-    delta = [position[0] - @pos[0], position[1] - @pos[1]]
-    raise RuntimeError.new "Invalid move!" if !move_diffs.include?(delta)
-    @board[@pos], @pos, @board[position] = nil, position, self
-    maybe_promote
-
-    return true
+  def inspect
+    {:color => @color}.inspect
   end
 
   def perform_jump(position)
@@ -37,25 +32,52 @@ class Piece
     @board[capture] = nil
     maybe_promote
 
-    return true
+    true
   end
 
-  def display
-      symbol = " \u2688 "
-      symbol.colorize(@color)
+  def perform_move!(move_sequence)
+    if move_sequence.length == 1
+      perform_slide(move_sequence[0]) || perform_jump(move_sequence[0])
+    else
+      move_sequence.each do |move|
+        perform_jump(move)
+
+        # @board[@pos], @pos, @board[move] = nil, move, self
+        # @board[capture] = nil
+        # maybe_promote
+        # @pos = move
+      end
+  end
+
+  def perform_slide(position)
+    delta = [position[0] - @pos[0], position[1] - @pos[1]]
+    false if !move_diffs.include?(delta)
+    @board[@pos], @pos, @board[position] = nil, position, self
+    maybe_promote
+
+    true
+  end
+
+  private
+  def promotion_row
+    @color == :red ? 0 : 7
+  end
+
+  def maybe_promote
+    @promoted = true if @pos[0] == promotion_row
   end
 
   def move_diffs
     if color == :red && promoted == false
       directions = [
-                    [-1, -1],
-                    [-1, 1]
-                    ]
+        [-1, -1],
+        [-1, 1]
+      ]
     elsif color == :black && promoted == false
       directions = [
-                    [1, -1],
-                    [1, 1]
-                    ]
+        [1, -1],
+        [1, 1]
+      ]
     elsif promoted == true
       directions = [
                     [-1, -1],
@@ -66,26 +88,9 @@ class Piece
     end
   end
 
-  def inspect
-    {:color => @color}.inspect
-  end
-
-  private
-  def maybe_promote
-    @promoted = true if @pos[0] == @promotion_row
-  end
 end
 
 if __FILE__ == $PROGRAM_NAME
   red = Piece.new(:red, [7,7], board)
   black = Piece.new(:black, [0,1], board)
-  p red
-  p black
-  red.perform_slide([6,6])
-  red.perform_slide([5,5])
-  red.perform_slide([4,4])
-  red.perform_slide([3,3])
-  red.perform_slide([2,2])
-  red.perform_slide([1,1])
-  red.perform_slide([0,0])
 end

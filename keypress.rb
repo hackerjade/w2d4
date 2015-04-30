@@ -44,7 +44,7 @@ def show_single_key
     return [0, -1]
     # puts "LEFT ARROW"
   when "\u0003"
-    puts "CONTROL-C"
+    puts "goodbye!"
     exit 0
   end
 end

@@ -1,44 +1,70 @@
-require_relative 'piece'
-require_relative 'board'
-require_relative 'player'
-require 'colorize'
 require 'byebug'
+require 'colorize'
 require 'io/console'
+require_relative 'board'
+require_relative 'keypress'
+require_relative 'piece'
+require_relative 'player'
 
 class Game
   attr_reader :player1, :player2
 
   def initialize(player1, player2)
     @board = Board.new
-    @player1 = HumanPlayer.new(player1, :red)
-    @player2 = HumanPlayer.new(player2, :black)
+    @players = make_players
+    @current_player = @players[0]
   end
 
   def play
-    puts @board.display
+    greet
     start_pos = [0, 0]
-    until won?(start_pos)
+    until game_over?(start_pos)
       begin
-        start_pos, end_pos = parse_input(@player1)
-        @board.move(start_pos, end_pos)
-      rescue KeyError => e
-        puts e.message
-        retry
-      rescue RuntimeError => e
+        move_piece
+      rescue TypeError => e
         puts e.message
         retry
       end
-      system "clear"
-      puts @board.display
+      display_board
+      @current_player = switch_players
     end
   end
 
-  def won?(pos)
+  private
+  def display_board
+    system "clear"
+    puts @board.display
+  end
+
+  def game_over?(pos)
     pos == [3, 7]
   end
 
-  def switch_players
+  def greet
+    puts "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n  Let the game begin!"
+    puts @board.display
+  end
 
+  def make_players
+    [HumanPlayer.new(player1, :red), HumanPlayer.new(player2, :black)]
+  end
+
+  def move_piece
+    begin
+      start_pos, end_pos = parse_input(@current_player)
+      if @board[start_pos].nil?
+        raise TypeError.new "There's no piece there!"
+      elsif @board[start_pos].color != @current_player.color
+        raise TypeError.new "That's not your piece!"
+      end
+      @board.move(start_pos, end_pos)
+    rescue KeyError => e
+      puts e.message
+      retry
+    rescue RuntimeError => e
+      puts e.message
+      retry
+    end
   end
 
   def parse_input(player)
@@ -58,6 +84,10 @@ class Game
     end
 
     [start_pos, end_pos]
+  end
+
+  def switch_players
+    @current_player == @players[0] ? @players[1] : @players[0]
   end
 
   def valid_key?(input)
