@@ -33,6 +33,8 @@ class Piece
     capture
     if !move_diffs.include?(delta) || @board.empty?(capture)
       raise RuntimeError.new "Invalid move!"
+    elsif @board.own_piece?(capture, @color)
+      raise RuntimeError.new "Can't capture your own piece!"
     end
     @board[@pos], @pos, @board[position] = nil, position, self
     @board[capture] = nil
@@ -51,7 +53,8 @@ class Piece
   end
 
   def display
-      @color == :red ? " O ".colorize(:red) :  " O ".colorize(:blue)
+      symbol = " \u2688 "
+      symbol.colorize(@color)
   end
 
   def move_diffs
