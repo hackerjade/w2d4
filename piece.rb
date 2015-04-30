@@ -17,12 +17,12 @@ class Piece
     delta = [position[0] - @pos[0], position[1] - @pos[1]]
     return false if !move_diffs.include?(delta)
     @pos = position
-    # maybe_promote
+    maybe_promote
     return true
   end
 
   def maybe_promote
-    # @promoted == true if @pos[1] == #opposite side of board
+    @promoted = true if @pos[0] == @promotion_row
   end
 
   def perform_jump
@@ -56,14 +56,13 @@ class Piece
 end
 
 if __FILE__ == $PROGRAM_NAME
-  red = Piece.new(:red, [7,1])
+  red = Piece.new(:red, [7,7])
   black = Piece.new(:black, [0,1])
-  p [red.color, red.pos]
-  p [black.color, black.pos]
-  red.perform_slide([6,0])
-  black.perform_slide([1,0])
-  p [red.color, red.pos]
-  p [black.color, black.pos]
-  p red.promotion_row
-  p black.promotion_row
+  red.perform_slide([6,6])
+  red.perform_slide([5,5])
+  red.perform_slide([4,4])
+  red.perform_slide([3,3])
+  red.perform_slide([2,2])
+  red.perform_slide([1,1])
+  red.perform_slide([0,0])
 end
