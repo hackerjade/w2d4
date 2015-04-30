@@ -2,9 +2,10 @@ class Piece
   attr_reader :color, :promotion_row
   attr_accessor :pos, :promoted
 
-  def initialize(color, pos, promoted = false)
+  def initialize(color, pos, board, promoted = false)
     @color = color
     @pos = pos
+    @board = board
     @promoted = promoted
     @promotion_row = find_promotion_row
   end
@@ -25,12 +26,14 @@ class Piece
     @promoted = true if @pos[0] == @promotion_row
   end
 
-  def perform_jump
+  def perform_jump(position)
     #remove the other piece we jumped over FROM BOARD
+    #if slide position is occupied by opposite color
+    #slide twice and remove other color
   end
 
-  def is_valid?
-
+  def display
+      @color == :red ? " O ".colorize(:red) :  " O ".colorize(:blue)
   end
 
   def move_diffs
@@ -53,11 +56,18 @@ class Piece
                     ]
     end
   end
+
+  def inspect
+    {:color => @color}.inspect
+  end
 end
 
+
 if __FILE__ == $PROGRAM_NAME
-  red = Piece.new(:red, [7,7])
-  black = Piece.new(:black, [0,1])
+  red = Piece.new(:red, [7,7], board)
+  black = Piece.new(:black, [0,1], board)
+  p red
+  p black
   red.perform_slide([6,6])
   red.perform_slide([5,5])
   red.perform_slide([4,4])
