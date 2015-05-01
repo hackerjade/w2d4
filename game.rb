@@ -12,22 +12,18 @@ class Game
 
   def initialize(player1, player2)
     @board = Board.new
-    @players = make_players
+    @players = make_players(player1, player2)
     @current_player = @players[0]
   end
 
   def play
     greet
     until game_over?
-      begin
-        move_piece
-      rescue OutOfTurnError => e
-        puts e.message
-        retry
-      end
+      move_piece
       @current_player = switch_players
       display_board
     end
+    display_game_over
   end
 
   private
@@ -37,8 +33,24 @@ class Game
     puts "   current_player: #{@current_player.color}"
   end
 
-  def game_over?
+  def display_game_over
+    find_winner
+    puts "\n\n"
+    puts "     Game Over!  "
+    puts "  #{@winner.name} won the game!"
+  end
 
+  def game_over?
+    @board.board.flatten.compact.none? { :black } ||
+    @board.board.flatten.compact.none? { :red }
+  end
+
+  def find_winner
+    loser = nil
+    @players.each_with_index do |player, idx|
+      loser = idx if @board.board.flatten.compact.none? { player.color }
+    end
+    loser == 0 ? @winner = @players[1] : @winner = @players[0]
   end
 
   def greet
@@ -48,7 +60,7 @@ class Game
     puts "   current_player: #{@current_player.color}"
   end
 
-  def make_players
+  def make_players(player1, player2)
     [HumanPlayer.new(player1, :red), HumanPlayer.new(player2, :black)]
   end
 

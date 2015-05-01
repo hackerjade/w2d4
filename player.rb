@@ -1,5 +1,5 @@
 class Player
-  attr_reader :color
+  attr_reader :name, :color
 
   def initialize(name, color)
     @name = name

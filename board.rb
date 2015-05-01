@@ -1,5 +1,5 @@
 class Board
-  attr_reader :cursor
+  attr_reader :cursor, :board
 
   def initialize(game_beginning = true)
     @board = Array.new(8) {Array.new(8)}

@@ -27,6 +27,7 @@ class Piece
     capture = @pos[0] + delta[0], @pos[1] + delta[1]
 
     if !move_diffs.include?(delta) || @board.empty?(capture)
+      byebug
       raise RuntimeError.new "Invalid move!"
       # return false
     elsif @board.own_piece?(capture, @color)
