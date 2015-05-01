@@ -23,9 +23,12 @@ def show_single_key
   c = read_char
 
   case c
-  when " "
+  when "\\"
     return :drop_off
-    # puts "SPACE"
+    # puts "BACKSLASH"
+  when "'"
+    return :drop
+    # puts "APOSTROPHE"
   when "\r"
     return :pick_up
     # puts "RETURN"
@@ -44,8 +47,10 @@ def show_single_key
     return [0, -1]
     # puts "LEFT ARROW"
   when "\u0003"
-    puts "goodbye!"
+    puts "       goodbye!"
     exit 0
+  # when /^.$/
+  #   puts "SINGLE CHAR HIT: #{c.inspect}"
   end
 end
 

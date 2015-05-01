@@ -1,9 +1,9 @@
 class Board
   attr_reader :cursor
 
-  def initialize(game_beginning = true, cursor = [5,3])
+  def initialize(game_beginning = true)
     @board = Array.new(8) {Array.new(8)}
-    @cursor = cursor
+    @cursor = [5, 3]
     set_up_board if game_beginning
   end
 
@@ -29,10 +29,19 @@ class Board
     end.join("\n")
   end
 
-  def dup(current_pos)
-    dup_board = Board.new(false, current_pos)
+  def dup
+    dup_board = Board.new(false)
 
+    @board.each_index do |row|
+      @board.each_index do |col|
+        piece = @board[row][col]
+        if !@board[row][col].nil?
+          dup_board[[row, col]] = piece.dup(self)
+        end
+      end
+    end
 
+    dup_board
   end
 
   def empty?(pos)
@@ -42,13 +51,7 @@ class Board
 
   def move(start_pos, end_pos)
     row, col = start_pos
-    if !@board[row][col].perform_slide(end_pos)
-      begin
-        @board[row][col].perform_jump(end_pos)
-      rescue RuntimeError => e
-        raise e
-      end
-    end
+    @board[row][col].perform_move(end_pos)
   end
 
   def move_cursor(direction)

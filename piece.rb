@@ -14,6 +14,10 @@ class Piece
     symbol.colorize(@color)
   end
 
+  def dup(board)
+    dup_piece = Piece.new(@color, @pos, board, @promoted)
+  end
+
   def inspect
     {:color => @color}.inspect
   end
@@ -24,6 +28,7 @@ class Piece
 
     if !move_diffs.include?(delta) || @board.empty?(capture)
       raise RuntimeError.new "Invalid move!"
+      # return false
     elsif @board.own_piece?(capture, @color)
       raise RuntimeError.new "Can't capture your own piece!"
     end
@@ -35,27 +40,58 @@ class Piece
     true
   end
 
-  def perform_move!(move_sequence)
+  def perform_move(move_seqs)
+    begin
+      if valid_move_seq?(move_seqs)
+        perform_move!(move_seqs, @board)
+      end
+    end
+  end
+
+  def perform_move!(move_sequence, board)
     if move_sequence.length == 1
-      perform_slide(move_sequence[0]) || perform_jump(move_sequence[0])
+      begin
+        perform_slide(move_sequence[0]) || perform_jump(move_sequence[0])
+      end
     else
       move_sequence.each do |move|
-        perform_jump(move)
+        delta = [(move[0] - @pos[0]) / 2, (move[1] - @pos[1]) / 2]
+        capture = @pos[0] + delta[0], @pos[1] + delta[1]
+        if !move_diffs.include?(delta) || board.empty?(capture)
+          raise InvalidMoveError.new "Invalid jumps!"
+        elsif board.own_piece?(capture, @color)
+          raise InvalidMoveError.new "Can't capture your own piece!"
+        end
 
-        # @board[@pos], @pos, @board[move] = nil, move, self
-        # @board[capture] = nil
-        # maybe_promote
-        # @pos = move
+        board[@pos], @pos, board[move] = nil, move, self
+        board[capture] = nil
+        maybe_promote
+
+        true
       end
+    end
   end
 
   def perform_slide(position)
     delta = [position[0] - @pos[0], position[1] - @pos[1]]
-    false if !move_diffs.include?(delta)
+    return false if !move_diffs.include?(delta)
     @board[@pos], @pos, @board[position] = nil, position, self
     maybe_promote
 
     true
+  end
+
+  def valid_move_seq?(sequences)
+    dup_board = @board.dup
+
+    begin
+      dup_board[@pos.dup].perform_move!(sequences, dup_board)
+    rescue RuntimeError => e
+      raise e
+      false
+    else
+      true
+    end
   end
 
   private
@@ -87,7 +123,6 @@ class Piece
                     ]
     end
   end
-
 end
 
 if __FILE__ == $PROGRAM_NAME
